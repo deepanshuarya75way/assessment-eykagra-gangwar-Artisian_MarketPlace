@@ -102,7 +102,21 @@ async function ensureDatabaseSchema() {
     await query(`CREATE INDEX IF NOT EXISTS stock_reservation_reservationid_idx ON "StockReservation"(reservationid)`);
     await query(`CREATE INDEX IF NOT EXISTS stock_reservation_stripesessionid_idx ON "StockReservation"(stripesessionid)`);
     await query(`CREATE INDEX IF NOT EXISTS stock_reservation_status_reserveduntil_idx ON "StockReservation"(status, reserveduntil)`);
-
+    
+  await query(`
+      CREATE TABLE IF NOT EXISTS "Review"(
+        id SERIAL PRIMARY KEY,
+        productid INTEGER NOT NULL REFERENCES "Product"(id) ON DELETE CASCADE,
+        buyerid INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+        RATING INTEGER NOT NULL CHECK (rating >=1 AND rating <=5),
+        comment TEXT,
+        createdat TIMESTAMP DEFAULT NOW(),
+        updatedat TIMESTAMP DEFAULT NOW(),
+        UNIQUE(productid,buyerid)
+      )
+    `);
+    await.query(`CREATE INDEX IF NOT EXISTS review_productid_idx ON "Review"(productid)`);
+    await.query(`CREATE INDEX IF NOT EXISTS review_buyerid_idx ON "Review"(buyerid)`);
     schemaEnsured = true;
   })()
     .catch((err) => {

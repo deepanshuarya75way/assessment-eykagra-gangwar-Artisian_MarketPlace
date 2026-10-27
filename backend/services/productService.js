@@ -4,6 +4,8 @@ const PRODUCT_COLS = `
   p.id, p.title, p.description, p.price, p.category,
   p.imageurl AS "imageUrl", p.sellerid AS "sellerId",
   p.stock, p.createdat AS "createdAt", u.email AS "sellerEmail"
+  COALESCE((SELECT AVG(rating) FROM "Review" r WHERE r.product.id=p.id),0)::float AS "avgRating",
+  COALESCE((SELECT COUNT(*) FROM "Review" r WHERE r.product.id=p.id),0)::int AS "reviewCount",
 `;
 
 async function ensureProductTable() {

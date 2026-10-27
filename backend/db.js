@@ -1,10 +1,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
-
 const { Pool } = require('pg');
-
 const useSsl = process.env.DB_SSL === 'true';
-
 const poolConfig = process.env.DATABASE_URL
   ? {
       connectionString: process.env.DATABASE_URL,
@@ -18,13 +15,10 @@ const poolConfig = process.env.DATABASE_URL
       database: process.env.DB_NAME || 'artisan_market',
       ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {}),
     };
-
 const pool = new Pool(poolConfig);
-
 async function query(text, params) {
   const res = await pool.query(text, params);
   return res;
 }
-
 module.exports = { query, pool };
 

@@ -1,6 +1,5 @@
 const productService = require('../services/productService');
 const { moderateText } = require('../services/moderationService');
-
 async function list(req, res) {
   try {
     const products = await productService.getAll();
@@ -10,7 +9,6 @@ async function list(req, res) {
     res.status(500).json({ error: 'Failed to list products' });
   }
 }
-
 async function myProducts(req, res) {
   try {
     const sellerId = req.user?.userId;
@@ -24,7 +22,6 @@ async function myProducts(req, res) {
     res.status(500).json({ error: 'Failed to list your products' });
   }
 }
-
 async function getById(req, res) {
   try {
     const id = parseInt(req.params.id, 10);
@@ -41,7 +38,6 @@ async function getById(req, res) {
     res.status(500).json({ error: 'Failed to get product' });
   }
 }
-
 async function create(req, res) {
   try {
     const { title, description, price, category, imageUrl } = req.body;
