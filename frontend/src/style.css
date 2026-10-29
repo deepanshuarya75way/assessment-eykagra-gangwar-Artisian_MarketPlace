@@ -4,6 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.product-rating {
+  font-weight: 600;
+}
+
 body {
   @apply bg-artisan-cream text-artisan-bark antialiased;
 }

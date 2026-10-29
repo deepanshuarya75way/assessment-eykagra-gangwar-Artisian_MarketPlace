@@ -63,7 +63,18 @@ async function ensureDatabaseSchema() {
     await query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS deliveryotp VARCHAR(4)`);
     await query(`ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS refundstatus TEXT`);
     await query(`UPDATE "Order" SET deliveryotp = '1234' WHERE deliveryotp IS NULL`);
-
+    await query(`
+      CREATE TABLE IF NOT EXISTS "Review" (
+        id SERIAL PRIMARY KEY,
+        productid INTEGER NOT NULL REFERENCES "Product"(id) ON DELETE CASCADE,
+        buyerid INTEGER NOT NULL REFERENCES "User"(id) ON DELETE CASCADE,
+        rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+        comment TEXT NOT NULL,
+        createdat TIMESTAMP DEFAULT NOW(),
+        updatedat TIMESTAMP DEFAULT NOW(),
+        UNIQUE(productid,buyerid)
+      )
+    `);
     await query(`
       CREATE TABLE IF NOT EXISTS "PaymentSession" (
         sessionid TEXT PRIMARY KEY,

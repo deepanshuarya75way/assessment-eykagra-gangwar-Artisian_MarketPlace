@@ -48,6 +48,10 @@ export default function ProductCard({ product }: ProductCardProps) {
           <p className="mt-2 text-lg font-semibold text-artisan-bark">
             ₹{price.toLocaleString('en-IN')}
           </p>
+          <p className = 'product-rating'>{'\u2605'} {Number(product.averageRating || 0).toFixed(1)}
+            {' - '}
+            {product.reviewCount || 0} reviews
+          </p>
           {product.sellerEmail && (
             <p className="mt-1 text-xs text-artisan-stone">by {product.sellerEmail}</p>
           )}

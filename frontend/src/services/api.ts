@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { data } from 'react-router-dom';
 
 const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
@@ -18,6 +19,8 @@ export interface Product {
   sellerEmail?: string;
   stock?: number;
   createdAt: string;
+  averageRating: number;
+  reviewCount: number;
 }
 
 export async function fetchProducts(): Promise<Product[]> {
@@ -33,6 +36,41 @@ export async function fetchProduct(id: string): Promise<Product | null> {
     if (axios.isAxiosError(err) && err.response?.status === 404) return null;
     throw err;
   }
+}
+
+export interface ProductReview {
+  id: number;
+  rating : number;
+  comment: string;
+  createdAt: string;
+  isMine: boolean;
+}
+
+export interface ProductReviewPage{
+  reviews: ProductReview[];
+  page: number;
+  pages: number;
+  reviewCount : number;
+  averageRating: number;
+  canReview: boolean;
+  myReview: {
+    id: number;
+    rating: number;
+    comment: string;
+    createdAt: string;
+  } | null;
+}
+
+export async function fetchProductReviews(
+  id: string,
+  page = 1,
+  token?: string
+): Promise<ProductReviewPage>{
+  const headers = token ? {Authorization : `Bearer ${token}` } : {};
+  const { data } = await api.get<ProductReviewPage>(`/products/${id}/reviews`,
+    {params: {page}, headers}
+  );
+  return data;
 }
 
 export interface CreateProductPayload {

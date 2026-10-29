@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import {
-  fetchProduct, createCheckoutSession, updateProduct, uploadProductImage,
-  getCurrentUserIdFromToken, getRoleFromToken,
+  fetchProduct, createCheckoutSession, updateProduct, uploadProductImage, fetchProductReviews, type ProductReviewPage,
+  getCurrentUserIdFromToken, getRoleFromToken, 
   type Product, type UpdateProductPayload,
 } from '../services/api';
 import { addToCartWithStock } from '../services/cart';
@@ -37,6 +37,11 @@ export default function ProductPage() {
   const [orderStage, setOrderStage] = useState<'idle' | 'placing' | 'placed' | 'failed'>('idle');
   const [addingToCart, setAddingToCart] = useState(false);
 
+  const [reviewData, setReviewData] = useState<ProductReviewPage | null>(null);
+  const [reviewPage, setReviewPage] = useState(1);
+  const [reviewLoading, setReviewLoading] = useState(true);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+
   useEffect(() => {
     if (!id) return;
     let cancelled = false;
@@ -55,6 +60,35 @@ export default function ProductPage() {
     return () => { cancelled = true; };
   }, [id]);
 
+  useEffect(()=>{
+    if(!id) return;
+    let cancelled = false;
+    setReviewLoading(true);
+
+    fetchProductReviews(id,reviewPage,localStorage.getItem('token') || undefined)
+    .then((data)=>{
+      if(cancelled) return;
+      setReviewData(data);
+      setProduct((current) => 
+        current ? {
+          ...current,
+          averageRating: data.averageRating,
+          reviewCount: data.reviewCount,
+        } : current 
+      );
+    })
+    .catch((err: any) => {
+      if(!cancelled){
+        setReviewError(err?.response?.data?.error || 'Failed to load reviews');
+      }
+    })
+    .finally(()=>{
+      if(!cancelled) setReviewLoading(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  },[id,reviewPage]);
   useEffect(() => {
     if (searchParams.get('buy') === '1') {
       const stock = typeof product?.stock === 'number' ? product.stock : undefined;
@@ -229,12 +263,17 @@ export default function ProductPage() {
             <p className="mt-6 text-2xl font-semibold text-artisan-bark">
               ₹{price.toLocaleString('en-IN')}
             </p>
+            
             <p className="mt-1 text-sm text-artisan-stone">
               Stock left:{' '}
               <span className="font-medium text-artisan-bark">
                 {typeof product.stock === 'number' ? product.stock : 0}
               </span>
             </p>
+            <p className = 'product-rating'>{'\u2605'} {Number(product.averageRating || 0).toFixed(1)}
+            {' - '}
+            {product.reviewCount || 0} reviews
+          </p>
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {isSeller ? (
                 isOwnListing ? (

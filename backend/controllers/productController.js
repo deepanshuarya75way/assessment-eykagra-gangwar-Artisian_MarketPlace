@@ -140,4 +140,90 @@ async function remove(req, res) {
   }
 }
 
-module.exports = { list, myProducts, getById, create, update, remove };
+async function listReviews(req,res) {
+  try {
+    const productId = parseInt(req.param.id,10);
+    if(!Number.isInteger(productId) || productId < 1){
+      return res.status(400).json({error:"Invalid product id"});
+    }
+    const product = await productService.getById(productId);
+    if(!product){
+      return res.status(400).json({error:"Product not found"});
+    }
+    const page = Math.max(1,parseInt(req.query.page,10) || 1);
+    const result = await productService.getReviews(
+      productId,
+      req.user?.userId || null, 
+      page
+    );
+    res.json(result);
+  }
+  catch(err){
+    console.log("List reviews error: ",err);
+    res.status(500).json({error:'Failed to load reviewsw'});
+  }
+}
+
+
+async function saveReview(req,res) {
+  try{
+    const productId = parseInt(req.params.id,10);
+    const buyerId = req.user?.userId;
+    const {rating,comment} = req.body || {};
+
+    if(!Number.isInteger(productId) || productId < 1){
+      return res.status(400).json({error:"Invalid product id"});
+    }
+
+    const numericRating = Number(rating);
+    if(!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5){
+      return res.status(400).json({error:"Rating must be a whole number from 1 to 5"});
+    }
+    if(typeof comment !=='string' || !comment.trim() || comment.trim().length > 2000){
+      return res.status(400).json({error: 'Comment is required and must be 2000 characters or less.'});
+    }
+    const product = await productService.getById(productId);
+    if(!product){
+      return res.status(404).json({error: 'Prodoct not found'});
+    }
+    if(!(await productService.canReview(productId,buyerId))){
+      return res.status(403).json({
+        error: 'Only a buyer with a delivered order for this product can review it.'
+      });
+    }
+
+    const review = await productService.saveReview({
+      productId,
+      buyerId,
+      rating: numberRating,
+      comment: comment.trim(),
+    });
+
+    res.json(review);
+  }
+  catch(err){
+    console.error("Save review error:",err);
+    res.status(500).json({error:'Failed to save review'});
+  }
+}
+
+async function removeReview(req,res){
+  try{
+    const productId = parseInt(req.params.id,10);
+    if(!Number.isInteger(productId) || productId < 1){
+      return res.status(400).json({error: 'Invalid product id'});
+    }
+    const deleted = await productService.deleteReview(productId,req.user.userId);
+    if(!deleted){
+      return res.status(404).json({error: 'Your review was not found'});
+    }
+
+    res.status(204).send();
+  }
+  catch(err){
+    console.error('Delete review error:', err);
+    res.status(500).json({error:'Failed to delete review'});
+  }
+}
+
+module.exports = { list, myProducts, getById, create, update, remove, listReviews, saveReview, removeReview };
