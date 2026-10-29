@@ -453,20 +453,54 @@ const handleDeleteReview = async () => {
                 Rating
                 <select value = {reviewRating} onChange={(event)=> setReviewRating(Number(event.target.value))}
                 disabled = {reviewSaving}>
-                  <option value="{5}">5 stars</option>
-                  <option value="{4}">4 stars</option>
-                  <option value="{3}">3 stars</option>
-                  <option value="{2}">2 stars</option>
-                  <option value="{1}">1 stars</option>
+                  <option value={5}>5 stars</option>
+                  <option value={4}>4 stars</option>
+                  <option value={3}>3 stars</option>
+                  <option value={2}>2 stars</option>
+                  <option value={1}>1 stars</option>
                 </select>
               </label>
               <label>
                 Comment
                 <textarea value={reviewComment} onChange={(event)=>setReviewComment(event.target.value)} maxLength={2000} required disabled={reviewSaving}/>
               </label>
-              
+              <button type='submit' disabled={reviewSaving}>
+                {reviewSaving ? 'Saving...': reviewData.myReview ? 'Update review' : 'Submit review'}
+              </button>
+              {reviewData.myReview && (
+                <button type ="button" onClick={handleDeleteReview} disabled = {reviewSaving}>Delete My Review</button>
+              )}
             </form>
           )}
+          {reviewLoading ? (
+            <p>Loading reviews...</p>
+          ): reviewData?.reviews.length ? (
+            <div>
+              {reviewData.reviews.map((review)=> (
+                <article key={review.id}>
+                  <p>
+                    {'✭'.repeat(review.rating)}
+                    {'☆'.repeat(5-review.rating)}
+                  </p>
+                  <p>{review.comment}</p>
+                  <small>
+                    {review.isMine ? 'Your review' : 'Verified buyer'}
+                    {' . '}
+                    {new Date(review.createdAt).toLocaleDateString()}
+                  </small>
+                </article>))}
+                {reviewData.pages>1 && (
+                  <div>
+                    <button type = "button" disabled={reviewData.page<=1} onClick={()=>setReviewPage(reviewData.page - 1)}>Previous</button>
+                    <span>{' '} Page {reviewData.page} of {reviewData.pages} {' '}</span>
+                    <button type = "button" disabled={reviewData.page>=reviewData.pages} onClick={()=>setReviewPage(reviewData.page + 1)}>Next</button>
+                  </div>
+                )}
+            </div>
+          ) : (
+            <p>No reviews yet.</p>
+          )
+        }
         </section>
         {/* ── Inline edit panel (seller own listing) ── */}
         {showEdit && isOwnListing && editForm && (

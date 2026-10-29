@@ -125,7 +125,7 @@ async function getReviews(productId,buyerId,requestedPage = 1){
           ELSE buyerid = $2
         END AS "isMine"
       FROM "Review"
-      WHERE productid = $1 ORDER BY createdat DESC, id DESC LIMIT $3 OFFSET $4`
+      WHERE productid = $1 ORDER BY createdat DESC, id DESC LIMIT $3 OFFSET $4`,
     [productId,buyerId || null, limit,offset]
     );
 
