@@ -18,6 +18,8 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [categoryKey, setCategoryKey] = useState<'All' | 'Others' | string>('All');
+  const [minimumRating, setMiniMumRating] = useState(0);
+  const [ratingSort,setRatingSort] = useState<'default' | 'highest'>('default');
 
   useEffect(() => {
     let cancelled = false;
@@ -89,8 +91,14 @@ export default function Home() {
           p.category.toLowerCase().includes(q)
       );
     }
+    if(minimumRating>0){
+      list = list.filter((p)=> Number(p.averageRating || 0) >=minimumRating);
+    }
+    if(ratingSort === 'highest'){
+      list = [...list].sort((a,b)=> Number(b.averageRating || 0) - Number(a.averageRating || 0));
+    }
     return list;
-  }, [products, categoryKey, search, topCategoryFilters]);
+  }, [products, categoryKey, search, topCategoryFilters,minimumRating,ratingSort]);
 
   return (
     <div className="min-h-screen">
