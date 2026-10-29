@@ -431,6 +431,43 @@ const handleDeleteReview = async () => {
             )}
           </div>
         </div>
+        <section className='reviews-section'>
+          <h2 className='text-xl font-semibold test-artisan-bark'>
+            Reviews ({reviewData?.reviewCount ?? product.reviewCount ?? 0})
+          </h2>
+          <p className='product-rating'>
+            {'\u2605'}{''}
+            {Number(
+              reviewData?.averageRating ?? product.averageRating ?? 0
+            ).toFixed(1)}
+            {' . '}
+            {reviewData?.reviewCount ?? product.reviewCount ?? 0} reviews
+          </p>
+          {reviewError && (
+            <p className='review-error' role='alert'>{reviewError}</p>
+          )}
+
+          {reviewData?.canReview && role == 'buyer' && (
+            <form className='review-form' onSubmit={handleReviewSubmit}>
+              <label>
+                Rating
+                <select value = {reviewRating} onChange={(event)=> setReviewRating(Number(event.target.value))}
+                disabled = {reviewSaving}>
+                  <option value="{5}">5 stars</option>
+                  <option value="{4}">4 stars</option>
+                  <option value="{3}">3 stars</option>
+                  <option value="{2}">2 stars</option>
+                  <option value="{1}">1 stars</option>
+                </select>
+              </label>
+              <label>
+                Comment
+                <textarea value={reviewComment} onChange={(event)=>setReviewComment(event.target.value)} maxLength={2000} required disabled={reviewSaving}/>
+              </label>
+              
+            </form>
+          )}
+        </section>
         {/* ── Inline edit panel (seller own listing) ── */}
         {showEdit && isOwnListing && editForm && (
           <div className="mt-8 rounded-2xl border border-artisan-terracotta/30 bg-white p-6 shadow-sm">

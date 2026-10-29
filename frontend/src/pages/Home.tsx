@@ -18,7 +18,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [categoryKey, setCategoryKey] = useState<'All' | 'Others' | string>('All');
-  const [minimumRating, setMiniMumRating] = useState(0);
+  const [minimumRating, setMinimumRating] = useState(0);
   const [ratingSort,setRatingSort] = useState<'default' | 'highest'>('default');
 
   useEffect(() => {
