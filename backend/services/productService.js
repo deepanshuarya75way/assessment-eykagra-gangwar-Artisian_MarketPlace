@@ -121,8 +121,8 @@ async function getReviews(productId,buyerId,requestedPage = 1){
     const reviewsResult = await query(
       `SELECT id,rating,comment,createdat AS "createdAt",
         CASE
-          WHEN $2 IS NULL THEN FALSE
-          ELSE buyerid = $2
+          WHEN $2::integer IS NULL THEN FALSE
+          ELSE buyerid = $2::integer
         END AS "isMine"
       FROM "Review"
       WHERE productid = $1 ORDER BY createdat DESC, id DESC LIMIT $3 OFFSET $4`,
