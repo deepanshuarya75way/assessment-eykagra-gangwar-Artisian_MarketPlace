@@ -18,9 +18,9 @@ export interface Product {
   sellerId: number;
   sellerEmail?: string;
   stock?: number;
-  createdAt: string;
   averageRating: number;
   reviewCount: number;
+  createdAt: string;
 }
 
 export async function fetchProducts(): Promise<Product[]> {
@@ -71,6 +71,25 @@ export async function fetchProductReviews(
     {params: {page}, headers}
   );
   return data;
+}
+
+export async function saveProductReview(
+  id:number,
+  payload: {rating: number,comment: string},
+  token: string
+): Promise<void>{
+  await api.post(`/products/${id}/reviews`,payload,{
+    headers: {Authorization: `Bearer ${token}`}
+  });
+}
+
+export async function deleteProductReview(
+  id: number,
+  token:string
+):Promise<void>{
+  await api.delete(`/products/${id}/reviews`,{
+    headers: {Authorization: `Bearer ${token}`}
+  })
 }
 
 export interface CreateProductPayload {

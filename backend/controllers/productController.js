@@ -142,13 +142,13 @@ async function remove(req, res) {
 
 async function listReviews(req,res) {
   try {
-    const productId = parseInt(req.param.id,10);
+    const productId = parseInt(req.params.id,10);
     if(!Number.isInteger(productId) || productId < 1){
       return res.status(400).json({error:"Invalid product id"});
     }
     const product = await productService.getById(productId);
     if(!product){
-      return res.status(400).json({error:"Product not found"});
+      return res.status(404).json({error:"Product not found"});
     }
     const page = Math.max(1,parseInt(req.query.page,10) || 1);
     const result = await productService.getReviews(
@@ -195,7 +195,7 @@ async function saveReview(req,res) {
     const review = await productService.saveReview({
       productId,
       buyerId,
-      rating: numberRating,
+      rating: numericRating,
       comment: comment.trim(),
     });
 

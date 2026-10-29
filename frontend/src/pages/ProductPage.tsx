@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useSearchParams, Link, useNavigate } from 'react-router-dom';
 import {
   fetchProduct, createCheckoutSession, updateProduct, uploadProductImage, fetchProductReviews, type ProductReviewPage,
-  getCurrentUserIdFromToken, getRoleFromToken, 
+  getCurrentUserIdFromToken, getRoleFromToken, saveProductReview, deleteProductReview,
   type Product, type UpdateProductPayload,
 } from '../services/api';
 import { addToCartWithStock } from '../services/cart';
@@ -41,6 +41,9 @@ export default function ProductPage() {
   const [reviewPage, setReviewPage] = useState(1);
   const [reviewLoading, setReviewLoading] = useState(true);
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [reviewSaving,setReviewSaving] = useState(false);
+  const [reviewRating,setReviewRating] = useState(5);
+  const [reviewComment,setReviewComment] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -69,6 +72,8 @@ export default function ProductPage() {
     .then((data)=>{
       if(cancelled) return;
       setReviewData(data);
+      setReviewRating(data.myReview?.rating??5);
+      setReviewComment(data.myReview?.comment ?? '');
       setProduct((current) => 
         current ? {
           ...current,
@@ -237,6 +242,68 @@ export default function ProductPage() {
     }
   };
 
+  const handleReviewSubmit = async(e: React.FormEvent) => {
+    e.preventDefault();
+    if(!product || !token)return;
+    setReviewSaving(true);
+    setReviewError(null);
+
+    try{
+      await saveProductReview(
+        product.id,
+        {rating: reviewRating,comment:reviewComment},
+        token
+      );
+      setReviewPage(1);
+      const data = await fetchProductReviews(String(product.id),1,token);
+      setReviewData(data);
+      setProduct((current)=>
+        current ? {
+          ...current,
+          averageRating: data.averageRating,
+          reviewCount: data.reviewCount,
+        }: current
+      );
+      setReviewRating(data.myReview?.rating ?? 5);
+      setReviewComment(data.myReview?.comment ?? '');
+    }
+    catch(err:any){
+      setReviewError(
+        err?.response?.data?.error || err?.message || 'Failed to  save review'
+      );
+  } finally {
+    setReviewSaving(false);
+  }
+};
+
+const handleDeleteReview = async () => {
+  if(!product || !token) return;
+
+  setReviewSaving(true);
+  setReviewError(null);
+  try{
+    await deleteProductReview(product.id,token);
+    setReviewPage(1);
+    const data = await fetchProductReviews(String(product.id),1,token);
+    setReviewData(data);
+    setProduct((current)=>
+        current ? {
+          ...current,
+          averageRating: data.averageRating,
+          reviewCount: data.reviewCount,
+        }: current
+      );
+      setReviewRating(5);
+      setReviewComment('');
+  }
+    catch(err:any){
+      setReviewError(
+        err?.response?.data?.error || err?.message || 'Failed to  save review'
+      );
+  } finally {
+    setReviewSaving(false);
+  }
+};
   return (
     <div className="min-h-screen">
       <article className="mx-auto max-w-4xl px-4 py-8">
