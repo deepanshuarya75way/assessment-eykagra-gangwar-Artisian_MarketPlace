@@ -1,6 +1,4 @@
 import axios from 'axios';
-import { data } from 'react-router-dom';
-
 const API_BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '');
 
 const api = axios.create({

@@ -160,7 +160,7 @@ async function listReviews(req,res) {
   }
   catch(err){
     console.log("List reviews error: ",err);
-    res.status(500).json({error:'Failed to load reviewsw'});
+    res.status(500).json({error:'Failed to load reviews'});
   }
 }
 

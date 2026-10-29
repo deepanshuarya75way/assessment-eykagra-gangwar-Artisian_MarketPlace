@@ -93,7 +93,7 @@ async function canReview(productId,buyerId) {
       FROM "User" u
       WHERE u.id = $2
         AND u.role = 'buyer'
-        AND (EXISTS(SELECT 1 FROM "Order" o WHERE o.productid = $1 AND o.buyerid = $2 AND o.status = 'delivered)
+        AND (EXISTS(SELECT 1 FROM "Order" o WHERE o.productid = $1 AND o.buyerid = $2 AND o.status = 'delivered')
         OR EXISTS (SELECT 1 FROM "Review" r WHERE r.productid = $1 AND r.buyerid = $2)
         )
     ) AS allowed`,
@@ -119,7 +119,7 @@ async function getReviews(productId,buyerId,requestedPage = 1){
     const offset = (page-1)*limit;
 
     const reviewsResult = await query(
-      `SELECT id,rating,comment,createat AS "createdAt".
+      `SELECT id,rating,comment,createdat AS "createdAt",
         CASE
           WHEN $2 IS NULL THEN FALSE
           ELSE buyerid = $2

@@ -11,7 +11,6 @@ function normalizeCategory(input: string) {
 
 export default function Home() {
   const role = getRoleFromToken(localStorage.getItem('token'));
-  if (role === 'seller') return <Navigate to="/dashboard" replace />;
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -99,7 +98,7 @@ export default function Home() {
     }
     return list;
   }, [products, categoryKey, search, topCategoryFilters,minimumRating,ratingSort]);
-
+if (role === 'seller') return <Navigate to="/dashboard" replace />;
   return (
     <div className="min-h-screen">
       <header className="border-b border-stone-200 bg-white py-8">
@@ -153,7 +152,30 @@ export default function Home() {
                 >
                   Others
                 </button>
+                
               )}
+            </div>
+            <div>
+              <label>Minimum Rating{''}
+                <select value={minimumRating} onChange={(event)=> setMinimumRating(Number(event.target.value))}>
+                  <option value = {0}>Any</option>
+                  <option value = {1}>1+ starts</option>
+                  <option value = {2}>2+ starts</option>
+                  <option value = {3}>3+ starts</option>
+                  <option value = {4}>4+ starts</option>
+                  <option value = {5}>5 starts</option>
+                </select>
+              </label>
+              {' '}
+              <label>
+                Sort{' '}
+                <select value = {ratingSort} onChange={(event)=>
+                  setRatingSort(event.target.value as 'default' | 'highest')
+                }>
+                  <option value = "default">Default</option>
+                  <option value = "highest">Highest rated</option>
+                </select>
+              </label>
             </div>
           </div>
         </div>
